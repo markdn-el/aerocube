@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroCube Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+    <style>
+        /* Tablet adjustments (Screens below 1024px width) */
+        @media (max-width: 1024px) {
+            body {
+                padding: 24px !important;
+            }
+            .main-grid {
+                grid-template-columns: 1fr !important; /* Stack columns vertically */
+                gap: 24px !important;
+            }
+        }
+
+        /* Mobile Phone adjustments (Screens below 650px width) */
+        @media (max-width: 650px) {
+            body {
+                padding: 16px !important;
+            }
+            header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 8px !important;
+            }
+            header h1 {
+                font-size: 26px !important;
+            }
+            .climate-grid {
+                grid-template-columns: 1fr !important; /* Force climate cards into single row stack */
+                gap: 12px !important;
+            }
+            .climate-card {
+                height: 140px !important;
+            }
+            .outlet-input-line {
+                width: 50% !important; /* Adjust custom text decoration underlining width */
+            }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 40px; background-color: #0A0A0A; font-family: 'Inter', sans-serif; color: #FFFFFF; display: flex; justify-content: center; min-height: 100vh; box-sizing: border-box; transition: padding 0.2s ease;">
+
+    <div style="width: 100%; max-width: 1360px; display: flex; flex-direction: column; gap: 32px;">
+        
+        <header style="display: flex; justify-content: space-between; align-items: center; width: 100%; transition: all 0.2s ease;">
+            <h1 style="margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">AeroCube Dashboard</h1>
+            <span id="dashboard-clock" style="color: #DDE3EB; opacity: 0.6; font-size: 16px; font-weight: 400;">Loading System Time...</span>
+        </header>
+
+        <main class="main-grid" style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 32px; width: 100%; transition: grid-template-columns 0.2s ease;">
+            
+            <div style="display: flex; flex-direction: column; gap: 32px;">
+                <section style="background-color: #1E1E1E; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+                    <h2 style="margin: 0; font-size: 18px; font-weight: 600; color: #FFFFFF;">Indoor Air Climate</h2>
+                    
+                    <div class="climate-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; transition: grid-template-columns 0.2s ease;">
+                        
+                        <div id="card-co2" style="background-color: #242424; border: 2px solid #3DD68C; border-radius: 16px; padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; height: 160px; box-sizing: border-box; transition: all 0.3s ease;">
+                            <span style="color: #3DD68C; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;" id="lbl-co2">CO2</span>
+                            <span id="val-co2" style="font-size: 40px; font-weight: 700; margin: auto 0;">--</span>
+                            <span style="color: #DDE3EB; opacity: 0.6; font-size: 12px; font-weight: 500;">PPM</span>
+                        </div>
+                        
+                        <div id="card-voc" style="background-color: #242424; border: 1px solid #3DD68C; border-radius: 16px; padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; height: 160px; box-sizing: border-box; transition: all 0.3s ease;">
+                            <span style="color: #DDE3EB; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;" id="lbl-voc">VOC Index</span>
+                            <span id="val-voc" style="font-size: 40px; font-weight: 700; margin: auto 0;">--</span>
+                            <span style="color: #DDE3EB; opacity: 0; font-size: 12px;">-</span>
+                        </div>
+                        
+                        <div id="card-status" style="background-color: #242424; border: 1px solid #3DD68C; border-radius: 16px; padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; height: 160px; box-sizing: border-box; transition: all 0.3s ease;">
+                            <span style="color: #DDE3EB; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">STATUS</span>
+                            <span id="val-status-emoji" style="font-size: 40px; font-weight: 700; margin: auto 0;">😊</span>
+                            <span id="val-status-text" style="color: #3DD68C; font-size: 12px; font-weight: 600;">Excellent</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="panel-recommendations" style="background-color: #1E1E1E; border: 2px solid #3DD68C; border-radius: 16px; padding: 24px; min-height: 160px; box-sizing: border-box; transition: all 0.3s ease;">
+                    <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #FFFFFF;">Recommendations:</h3>
+                    <ul id="list-recommendations" style="margin: 0; padding-left: 20px; color: #DDE3EB; font-size: 16px; line-height: 1.8;">
+                        <li>System Initializing...</li>
+                    </ul>
+                </section>
+
+                <section style="background-color: #1E1E1E; border-radius: 16px; padding: 24px; box-sizing: border-box;">
+                    <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #FFFFFF;">Health Insights:</h3>
+                    <p id="txt-health-insights" style="margin: 0; color: #DDE3EB; opacity: 0.8; font-size: 15px; line-height: 1.6; font-style: italic;">
+                        "Synchronizing environmental models with Google Firebase Realtime Database clusters..."
+                    </p>
+                </section>
+            </div>
+
+            <div style="background-color: #1E1E1E; border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 28px;">
+                <h2 style="margin: 0; font-size: 18px; font-weight: 600; color: #FFFFFF; text-align: center;">Quick Actions</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <button id="btn-buzzer" style="background-color: #242424; border: none; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; cursor: pointer; transition: all 0.2s ease;">
+                        <span id="txt-buzzer-state" style="color: #DDE3EB; opacity: 0.6; font-size: 14px; font-weight: 500;">Mute</span>
+                        <div id="icon-buzzer">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+                        </div>
+                        <span style="color: #FFFFFF; font-size: 16px; font-weight: 500;">Buzzer</span>
+                    </button>
+
+                    <button id="btn-led" style="background-color: #DDE3EB; border: none; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; cursor: pointer; transition: all 0.2s ease;">
+                        <span id="txt-led-state" style="color: #1E1E1E; opacity: 0.7; font-size: 14px; font-weight: 600;">Active</span>
+                        <div id="icon-led">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .6 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line></svg>
+                        </div>
+                        <span id="txt-led-label" style="color: #1E1E1E; font-size: 16px; font-weight: 700;">LED</span>
+                    </button>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 12px; align-items: center; margin-top: 8px;">
+                    <span style="color: #DDE3EB; opacity: 0.8; font-size: 14px; font-weight: 500;">Control Mode</span>
+                    <div style="background-color: #242424; width: 100%; border-radius: 12px; padding: 6px; display: flex; box-sizing: border-box;">
+                        <div id="mode-auto" style="flex: 1; text-align: center; padding: 12px; color: #DDE3EB; opacity: 0.4; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s ease;">AUTOMATIC</div>
+                        <div id="mode-manual" style="flex: 1; text-align: center; padding: 12px; background-color: #DDE3EB; color: #1E1E1E; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s ease;">MANUAL</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 12px;">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <span id="indicator-auto-1" style="color: #3DD68C; opacity: 0.8; font-size: 11px; align-self: flex-end; font-weight: 600; letter-spacing: 0.3px;">Auto: CO2</span>
+                        <div style="background-color: #242424; border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
+                            <span class="outlet-input-line" style="font-size: 18px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 2px; width: 65%;">Outlet #1</span>
+                            <div id="toggle-outlet-1" style="width: 50px; height: 28px; background-color: #DDE3EB; border-radius: 14px; position: relative; cursor: pointer; transition: all 0.2s ease;">
+                                <div style="width: 22px; height: 22px; background-color: #1E1E1E; border-radius: 50%; position: absolute; right: 3px; top: 3px; transition: all 0.2s ease;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <span id="indicator-auto-2" style="color: #3DD68C; opacity: 0.8; font-size: 11px; align-self: flex-end; font-weight: 600; letter-spacing: 0.3px;">Auto: VOC</span>
+                        <div style="background-color: #242424; border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
+                            <span class="outlet-input-line" style="font-size: 18px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 2px; width: 65%;">Outlet #2</span>
+                            <div id="toggle-outlet-2" style="width: 50px; height: 28px; background-color: #DDE3EB; border-radius: 14px; position: relative; cursor: pointer; transition: all 0.2s ease;">
+                                <div style="width: 22px; height: 22px; background-color: #1E1E1E; border-radius: 50%; position: absolute; right: 3px; top: 3px; transition: all 0.2s ease;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ==========================================
+        // 🛠️ FIREBASE CONFIGURATION RECEPTACLE
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "PASTE_YOUR_API_KEY_HERE",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase Cluster Connections
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Local State Architecture Layout
+        let systemState = {
+            isManual: true,
+            buzzerMuted: true,
+            ledActive: true,
+            outlet1Active: false,
+            outlet2Active: false
+        };
+
+        // DOM Element Mapping Nodes
+        const modeAuto = document.getElementById('mode-auto');
+        const modeManual = document.getElementById('mode-manual');
+        const btnBuzzer = document.getElementById('btn-buzzer');
+        const btnLed = document.getElementById('btn-led');
+        const toggleOutlet1 = document.getElementById('toggle-outlet-1');
+        const toggleOutlet2 = document.getElementById('toggle-outlet-2');
+
+        const iconBuzzerMute = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`;
+        const iconBuzzerActive = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`;
+        const iconLedSvg = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .6 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line></svg>`;
+
+        // Clock Pipeline Task
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('dashboard-clock').innerText = now.toLocaleString('en-US', { 
+                month: 'long', day: 'numeric', year: 'numeric', 
+                hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true 
+            });
+        }, 1000);
+
+        // ==========================================
+        // 📥 CLOUD SYNC LISTENERS (FIREBASE -> UI)
+        // ==========================================
+        
+        // 1. Listen to Telemetry Stream (CO2 & VOC Index)
+        database.ref('telemetry').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
+
+            const co2 = data.co2 || 400;
+            const voc = data.vocIndex || 100;
+
+            document.getElementById('val-co2').innerText = co2;
+            document.getElementById('val-voc').innerText = voc;
+
+            evaluateAtmosphericSafety(co2, voc);
+        });
+
+        // 2. Listen to Control Overrides Stream
+        database.ref('controls').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
+
+            // Invert "isAutoMode" flag from server to match local "isManual" UI states
+            systemState.isManual = !(data.isAutoMode);
+            systemState.buzzerMuted = data.isBuzzerSilenced;
+            systemState.ledActive = data.isRGBEnabled;
+            systemState.outlet1Active = data.manualRelay1;
+            systemState.outlet2Active = data.manualRelay2;
+
+            // Update entire UI layout with new states
+            executeControlUIUpdates();
+        });
+
+        // ==========================================
+        // 🧮 MATHEMATICAL METRIC EVALUATION ENGINE
+        // ==========================================
+        function evaluateAtmosphericSafety(co2, voc) {
+            const cardCo2 = document.getElementById('card-co2');
+            const cardVoc = document.getElementById('card-voc');
+            const cardStatus = document.getElementById('card-status');
+            const lblCo2 = document.getElementById('lbl-co2');
+            const lblVoc = document.getElementById('lbl-voc');
+            const txtStatus = document.getElementById('val-status-text');
+            const emojiStatus = document.getElementById('val-status-emoji');
+            const panelRecs = document.getElementById('panel-recommendations');
+            const listRecs = document.getElementById('list-recommendations');
+            const txtInsights = document.getElementById('txt-health-insights');
+
+            let alertLevel = 0; // 0 = Safe, 1 = Warning, 2 = Critical
+
+            if (co2 >= 2500 || voc >= 250)      alertLevel = 2;
+            else if (co2 >= 1000 || voc >= 150) alertLevel = 1;
+
+            // Update Individual Card Accents dynamically based on localized thresholds
+            cardCo2.style.borderColor = (co2 >= 2500) ? '#E63946' : (co2 >= 1000 ? '#FFB703' : '#3DD68C');
+            lblCo2.style.color = (co2 >= 2500) ? '#E63946' : (co2 >= 1000 ? '#FFB703' : '#3DD68C');
+            
+            cardVoc.style.borderColor = (voc >= 250) ? '#E63946' : (voc >= 150 ? '#FFB703' : '#3DD68C');
+            lblVoc.style.color = (voc >= 250) ? '#E63946' : (voc >= 150 ? '#FFB703' : '#3DD68C');
+
+            if (alertLevel === 2) {
+                // CRITICAL ENVIRONMENT SYSTEM TRANSITIONS
+                cardStatus.style.borderColor = '#E63946';
+                txtStatus.innerText = "Critical";
+                txtStatus.style.color = "#E63946";
+                emojiStatus.innerText = "😷";
+                panelRecs.style.borderColor = "#E63946";
+
+                listRecs.innerHTML = `
+                    <li style="color: #E63946; font-weight: 600;">Hazard: Toxic air volume parameters detected!</li>
+                    <li>Evacuate unventilated spaces immediately.</li>
+                    <li>Mains automation loops activated to drop toxicity indexes.</li>
+                `;
+                txtInsights.innerText = `"System flag stands at Critical. Carbon dioxide or chemical synthesis levels have broken absolute limits. Evacuation protocols or full-forced mechanical exhausting routes are currently operating on the node line."`;
+            } 
+            else if (alertLevel === 1) {
+                // WARNING ENVIRONMENT SYSTEM TRANSITIONS
+                cardStatus.style.borderColor = '#FFB703';
+                txtStatus.innerText = "Warning";
+                txtStatus.style.color = "#FFB703";
+                emojiStatus.innerText = "😐";
+                panelRecs.style.borderColor = "#FFB703";
+
+                listRecs.innerHTML = `
+                    <li style="color: #FFB703; font-weight: 600;">Warning: Stale environment conditions developing.</li>
+                    <li>Open nearest windows to introduce atmospheric circulation.</li>
+                    <li>Relay modules are currently driven by active sensors.</li>
+                `;
+                txtInsights.innerText = `"System flag stands at Warning. Ambient carbon accumulation is increasing. The edge-remediation matrix has activated targeted fans to normalize room climate density profiles."`;
+            } 
+            else {
+                // SAFE NORMAL STANDBY MATRIX
+                cardStatus.style.borderColor = '#3DD68C';
+                txtStatus.innerText = "Excellent";
+                txtStatus.style.color = "#3DD68C";
+                emojiStatus.innerText = "😊";
+                panelRecs.style.borderColor = "#52B788";
+
+                listRecs.innerHTML = `
+                    <li>No recommendations</li>
+                    <li>The air is clean</li>
+                `;
+                txtInsights.innerText = `"Air parameters are currently optimal. No autonomous remediation is necessary. The hardware module remains in green standby mode to preserve appliance energy. Keep practicing your regular ventilation habits to maintain this baseline."`;
+            }
+        }
+
+        // ==========================================
+        // 🔄 VISUAL INTERACTIVE RENDER ENGINE
+        // ==========================================
+        function executeControlUIUpdates() {
+            // Render Mode Switches
+            if (systemState.isManual) {
+                modeManual.style.backgroundColor = '#DDE3EB';
+                modeManual.style.color = '#1E1E1E';
+                modeManual.style.fontWeight = '700';
+                modeManual.style.opacity = '1';
+
+                modeAuto.style.backgroundColor = 'transparent';
+                modeAuto.style.color = '#DDE3EB';
+                modeAuto.style.fontWeight = '600';
+                modeAuto.style.opacity = '0.4';
+                
+                enableOutletInteractions(true);
+            } else {
+                modeAuto.style.backgroundColor = '#DDE3EB';
+                modeAuto.style.color = '#1E1E1E';
+                modeAuto.style.fontWeight = '700';
+                modeAuto.style.opacity = '1';
+
+                modeManual.style.backgroundColor = 'transparent';
+                modeManual.style.color = '#DDE3EB';
+                modeManual.style.fontWeight = '600';
+                modeManual.style.opacity = '0.4';
+                
+                enableOutletInteractions(false);
+            }
+
+            // Render Buzzer Component State
+            const txtBuzzer = document.getElementById('txt-buzzer-state');
+            const divBuzzerIcon = document.getElementById('icon-buzzer');
+            if (systemState.buzzerMuted) {
+                btnBuzzer.style.backgroundColor = '#242424';
+                btnBuzzer.style.color = '#FFFFFF';
+                txtBuzzer.innerText = 'Mute';
+                txtBuzzer.style.color = '#DDE3EB';
+                txtBuzzer.style.opacity = '0.6';
+                divBuzzerIcon.style.color = '#FFFFFF';
+                divBuzzerIcon.innerHTML = iconBuzzerMute;
+            } else {
+                btnBuzzer.style.backgroundColor = '#E63946'; 
+                btnBuzzer.style.color = '#FFFFFF';
+                txtBuzzer.innerText = 'Sounding';
+                txtBuzzer.style.color = '#FFFFFF';
+                txtBuzzer.style.opacity = '1';
+                divBuzzerIcon.style.color = '#FFFFFF';
+                divBuzzerIcon.innerHTML = iconBuzzerActive;
+            }
+
+            // Render RGB LED State
+            const txtLed = document.getElementById('txt-led-state');
+            const lblLed = document.getElementById('txt-led-label');
+            const divLedIcon = document.getElementById('icon-led');
+            if (systemState.ledActive) {
+                btnLed.style.backgroundColor = '#DDE3EB';
+                txtLed.innerText = 'Active';
+                txtLed.style.color = '#1E1E1E';
+                txtLed.style.opacity = '0.7';
+                lblLed.style.color = '#1E1E1E';
+                divLedIcon.style.color = '#1E1E1E';
+                divLedIcon.innerHTML = iconLedSvg;
+            } else {
+                btnLed.style.backgroundColor = '#242424';
+                txtLed.innerText = 'Off';
+                txtLed.style.color = '#DDE3EB';
+                txtLed.style.opacity = '0.4';
+                lblLed.style.color = '#FFFFFF';
+                divLedIcon.style.color = '#DDE3EB';
+                divLedIcon.style.opacity = '0.4';
+                divLedIcon.innerHTML = iconLedSvg;
+            }
+
+            // Render Outlet Toggle Slider Positions
+            updateToggleSwitchUI(toggleOutlet1, systemState.outlet1Active);
+            updateToggleSwitchUI(toggleOutlet2, systemState.outlet2Active);
+        }
+
+        function enableOutletInteractions(enabled) {
+            const opacityValue = enabled ? '1' : '0.4';
+            const cursorValue = enabled ? 'pointer' : 'not-allowed';
+            
+            [toggleOutlet1, toggleOutlet2].forEach(el => {
+                el.style.opacity = opacityValue;
+                el.style.cursor = cursorValue;
+            });
+
+            // Toggle active tracking status flags text
+            document.getElementById('indicator-auto-1').style.color = enabled ? '#A0A0A0' : '#3DD68C';
+            document.getElementById('indicator-auto-1').innerText = enabled ? 'Manual Control Override' : 'Auto: CO2';
+            
+            document.getElementById('indicator-auto-2').style.color = enabled ? '#A0A0A0' : '#3DD68C';
+            document.getElementById('indicator-auto-2').innerText = enabled ? 'Manual Control Override' : 'Auto: VOC';
+        }
+
+        function updateToggleSwitchUI(element, isActive) {
+            const handle = element.children[0];
+            if (isActive) {
+                element.style.backgroundColor = '#3DD68C'; // Matches green execution accent
+                handle.style.right = '3px';
+                handle.style.left = 'auto';
+            } else {
+                element.style.backgroundColor = '#4A4A4A';
+                handle.style.left = '3px';
+                handle.style.right = 'auto';
+            }
+        }
+
+        // ==========================================
+        // 📤 CLOUD WRITE INTERACTION EVENT HANDLERS
+        // ==========================================
+        modeAuto.addEventListener('click', () => {
+            database.ref('controls/isAutoMode').set(true);
+        });
+
+        modeManual.addEventListener('click', () => {
+            database.ref('controls/isAutoMode').set(false);
+        });
+
+        btnBuzzer.addEventListener('click', () => {
+            database.ref('controls/isBuzzerSilenced').set(!systemState.buzzerMuted);
+        });
+
+        btnLed.addEventListener('click', () => {
+            database.ref('controls/isRGBEnabled').set(!systemState.ledActive);
+        });
+
+        toggleOutlet1.addEventListener('click', () => {
+            if (!systemState.isManual) return; // Ignore event if system is running autonomously
+            database.ref('controls/manualRelay1').set(!systemState.outlet1Active);
+        });
+
+        toggleOutlet2.addEventListener('click', () => {
+            if (!systemState.isManual) return; // Ignore event if system is running autonomously
+            database.ref('controls/manualRelay2').set(!systemState.outlet2Active);
+        });
+    </script>
+</body>
+</html>
