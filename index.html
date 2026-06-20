@@ -156,17 +156,17 @@
     </div>
 
     <script>
-        // ==========================================
-        // 🛠️ FIREBASE CONFIGURATION RECEPTACLE
-        // ==========================================
+        // =================================================================
+        // 🛠️ FIREBASE CONFIGURATION RECEPTACLE (Pre-mapped from your console)
+        // =================================================================
         const firebaseConfig = {
-            apiKey: "PASTE_YOUR_API_KEY_HERE",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyBQP8psXqOg-yb1eQDXzONoEXV1CnIUAp0", 
+            authDomain: "aerocube-db.firebaseapp.com",
+            databaseURL: "https://aerocube-db-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "aerocube-db",
+            storageBucket: "aerocube-db.appspot.com",
+            messagingSenderId: "531621525535",
+            appId: "1:531621525535:web:4fdfba99e7827790eafd2a"
         };
 
         // Initialize Firebase Cluster Connections
@@ -445,9 +445,4 @@
         });
 
         toggleOutlet2.addEventListener('click', () => {
-            if (!systemState.isManual) return; // Ignore event if system is running autonomously
-            database.ref('controls/manualRelay2').set(!systemState.outlet2Active);
-        });
-    </script>
-</body>
-</html>
+            if (!system
