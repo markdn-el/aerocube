@@ -21,6 +21,9 @@
                 grid-template-columns: 1fr !important; /* Stack columns vertically */
                 gap: 24px !important;
             }
+            .recs-grid {
+                grid-template-columns: 1fr !important;
+            }
         }
 
         /* Mobile Phone adjustments (Screens below 650px width) */
@@ -39,9 +42,6 @@
             .climate-grid {
                 grid-template-columns: 1fr !important; /* Force climate cards into single row stack */
                 gap: 12px !important;
-            }
-            .climate-card {
-                height: 140px !important;
             }
             .outlet-input-line {
                 width: 50% !important; /* Adjust custom text decoration underlining width */
@@ -78,20 +78,33 @@
                             <span style="color: #DDE3EB; opacity: 0; font-size: 12px;">-</span>
                         </div>
                         
-                        <div id="card-status" style="background-color: #242424; border: 1px solid #3DD68C; border-radius: 16px; padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; height: 160px; box-sizing: border-box; transition: all 0.3s ease;">
-                            <span style="color: #DDE3EB; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">STATUS</span>
-                            <span id="val-status-emoji" style="font-size: 40px; font-weight: 700; margin: auto 0;">😊</span>
-                            <span id="val-status-text" style="color: #3DD68C; font-size: 12px; font-weight: 600;">Excellent</span>
+                        <div style="display: flex; flex-direction: column; gap: 12px; height: 160px; box-sizing: border-box;">
+                            <div style="background-color: #242424; border-radius: 12px; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; flex: 1;">
+                                <span style="color: #DDE3EB; font-size: 13px; font-weight: 600;">Temperature</span>
+                                <span id="val-temp" style="color: #FFFFFF; font-size: 16px; font-weight: 700;">--°C</span>
+                            </div>
+                            <div style="background-color: #242424; border-radius: 12px; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; flex: 1;">
+                                <span style="color: #DDE3EB; font-size: 13px; font-weight: 600;">Humidity</span>
+                                <span id="val-humid" style="color: #FFFFFF; font-size: 16px; font-weight: 700;">--%</span>
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                <section id="panel-recommendations" style="background-color: #1E1E1E; border: 2px solid #3DD68C; border-radius: 16px; padding: 24px; min-height: 160px; box-sizing: border-box; transition: all 0.3s ease;">
-                    <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #FFFFFF;">Recommendations:</h3>
-                    <ul id="list-recommendations" style="margin: 0; padding-left: 20px; color: #DDE3EB; font-size: 16px; line-height: 1.8;">
-                        <li>System Initializing...</li>
-                    </ul>
-                </section>
+                <div class="recs-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+                    <section id="panel-recommendations" style="background-color: #1E1E1E; border: 2px solid #3DD68C; border-radius: 16px; padding: 24px; min-height: 160px; box-sizing: border-box; transition: all 0.3s ease;">
+                        <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #FFFFFF;">Recommendations:</h3>
+                        <ul id="list-recommendations" style="margin: 0; padding-left: 20px; color: #DDE3EB; font-size: 16px; line-height: 1.8;">
+                            <li>System Initializing...</li>
+                        </ul>
+                    </section>
+
+                    <div id="card-status" style="background-color: #242424; border: 1px solid #3DD68C; border-radius: 16px; padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; min-height: 160px; box-sizing: border-box; transition: all 0.3s ease;">
+                        <span style="color: #DDE3EB; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">STATUS</span>
+                        <span id="val-status-emoji" style="font-size: 40px; font-weight: 700; margin: auto 0;">😊</span>
+                        <span id="val-status-text" style="color: #3DD68C; font-size: 12px; font-weight: 600;">Excellent</span>
+                    </div>
+                </div>
 
                 <section style="background-color: #1E1E1E; border-radius: 16px; padding: 24px; box-sizing: border-box;">
                     <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #FFFFFF;">Health Insights:</h3>
@@ -157,7 +170,7 @@
 
     <script>
         // =================================================================
-        // 🛠️ FIREBASE CONFIGURATION RECEPTACLE (Fixed Syntax Key Mismatch)
+        // 🛠️ FIREBASE CONFIGURATION RECEPTACLE
         // =================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBQP8psXqOg-yb1eQDXzONoEXV1CnIUAp0",
@@ -208,16 +221,20 @@
         // 📥 CLOUD SYNC LISTENERS (FIREBASE -> UI)
         // ==========================================
         
-        // 1. Listen to Telemetry Stream (CO2 & VOC Index)
+        // 1. Listen to Telemetry Stream (CO2, VOC Index, Temp, Humid)
         database.ref('telemetry').on('value', (snapshot) => {
             const data = snapshot.val();
             if (!data) return;
 
             const co2 = data.co2 || 400;
             const voc = data.vocIndex || 100;
+            const temp = data.temperature !== undefined ? data.temperature : '--';
+            const humid = data.humidity !== undefined ? data.humidity : '--';
 
             document.getElementById('val-co2').innerText = co2;
             document.getElementById('val-voc').innerText = voc;
+            document.getElementById('val-temp').innerText = temp !== '--' ? temp + '°C' : '--°C';
+            document.getElementById('val-humid').innerText = humid !== '--' ? humid + '%' : '--%';
 
             evaluateAtmosphericSafety(co2, voc);
         });
