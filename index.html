@@ -157,18 +157,18 @@
 
     <script>
         // =================================================================
-        // 🛠️ FIREBASE CONFIGURATION RECEPTACLE (Pre-mapped from your console)
+        // 🛠️ FIREBASE CONFIGURATION RECEPTACLE (Fixed Syntax Key Mismatch)
         // =================================================================
-     const firebaseConfig = {
-      apiKey: "AIzaSyBQP8psXqOg-yb1eQDXzONoEXV1CnIUAp0",
-      authDomain: "aerocube-db.firebaseapp.com",
-      databaseURL: "https://aerocube-db-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "aerocube-db",
-      storageBucket: "aerocube-db.firebasestorage.app",
-      messagingSenderId: "531621525535",
-      appId: "1:531621525535:web:4fdfba99e7827790eafd2a",
-      measurementId: "G-0NSQ3R1HE7"
-     };
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQP8psXqOg-yb1eQDXzONoEXV1CnIUAp0",
+            authDomain: "aerocube-db.firebaseapp.com",
+            databaseURL: "https://aerocube-db-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "aerocube-db",
+            storageBucket: "aerocube-db.firebasestorage.app",
+            messagingSenderId: "531621525535",
+            appId: "1:531621525535:web:4fdfba99e7827790eafd2a",
+            measurementId: "G-0NSQ3R1HE7"
+        };
 
         // Initialize Firebase Cluster Connections
         firebase.initializeApp(firebaseConfig);
@@ -266,7 +266,6 @@
             lblVoc.style.color = (voc >= 250) ? '#E63946' : (voc >= 150 ? '#FFB703' : '#3DD68C');
 
             if (alertLevel === 2) {
-                // CRITICAL ENVIRONMENT SYSTEM TRANSITIONS
                 cardStatus.style.borderColor = '#E63946';
                 txtStatus.innerText = "Critical";
                 txtStatus.style.color = "#E63946";
@@ -281,7 +280,6 @@
                 txtInsights.innerText = `"System flag stands at Critical. Carbon dioxide or chemical synthesis levels have broken absolute limits. Evacuation protocols or full-forced mechanical exhausting routes are currently operating on the node line."`;
             } 
             else if (alertLevel === 1) {
-                // WARNING ENVIRONMENT SYSTEM TRANSITIONS
                 cardStatus.style.borderColor = '#FFB703';
                 txtStatus.innerText = "Warning";
                 txtStatus.style.color = "#FFB703";
@@ -296,7 +294,6 @@
                 txtInsights.innerText = `"System flag stands at Warning. Ambient carbon accumulation is increasing. The edge-remediation matrix has activated targeted fans to normalize room climate density profiles."`;
             } 
             else {
-                // SAFE NORMAL STANDBY MATRIX
                 cardStatus.style.borderColor = '#3DD68C';
                 txtStatus.innerText = "Excellent";
                 txtStatus.style.color = "#3DD68C";
@@ -315,7 +312,6 @@
         // 🔄 VISUAL INTERACTIVE RENDER ENGINE
         // ==========================================
         function executeControlUIUpdates() {
-            // Render Mode Switches
             if (systemState.isManual) {
                 modeManual.style.backgroundColor = '#DDE3EB';
                 modeManual.style.color = '#1E1E1E';
@@ -342,7 +338,6 @@
                 enableOutletInteractions(false);
             }
 
-            // Render Buzzer Component State
             const txtBuzzer = document.getElementById('txt-buzzer-state');
             const divBuzzerIcon = document.getElementById('icon-buzzer');
             if (systemState.buzzerMuted) {
@@ -363,7 +358,6 @@
                 divBuzzerIcon.innerHTML = iconBuzzerActive;
             }
 
-            // Render RGB LED State
             const txtLed = document.getElementById('txt-led-state');
             const lblLed = document.getElementById('txt-led-label');
             const divLedIcon = document.getElementById('icon-led');
@@ -386,7 +380,6 @@
                 divLedIcon.innerHTML = iconLedSvg;
             }
 
-            // Render Outlet Toggle Slider Positions
             updateToggleSwitchUI(toggleOutlet1, systemState.outlet1Active);
             updateToggleSwitchUI(toggleOutlet2, systemState.outlet2Active);
         }
@@ -400,7 +393,6 @@
                 el.style.cursor = cursorValue;
             });
 
-            // Toggle active tracking status flags text
             document.getElementById('indicator-auto-1').style.color = enabled ? '#A0A0A0' : '#3DD68C';
             document.getElementById('indicator-auto-1').innerText = enabled ? 'Manual Control Override' : 'Auto: CO2';
             
@@ -411,7 +403,7 @@
         function updateToggleSwitchUI(element, isActive) {
             const handle = element.children[0];
             if (isActive) {
-                element.style.backgroundColor = '#3DD68C'; // Matches green execution accent
+                element.style.backgroundColor = '#3DD68C'; 
                 handle.style.right = '3px';
                 handle.style.left = 'auto';
             } else {
@@ -441,9 +433,14 @@
         });
 
         toggleOutlet1.addEventListener('click', () => {
-            if (!systemState.isManual) return; // Ignore event if system is running autonomously
+            if (!systemState.isManual) return; 
             database.ref('controls/manualRelay1').set(!systemState.outlet1Active);
         });
 
         toggleOutlet2.addEventListener('click', () => {
-            if (!system
+            if (!systemState.isManual) return; 
+            database.ref('controls/manualRelay2').set(!systemState.outlet2Active);
+        });
+    </script>
+</body>
+</html>
