@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AeroCube | About</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="about.css" />
+  <link rel="manifest" href="manifest.json" />
+</head>
+<body>
+
+  <!-- Mobile Top Header Bar with Hamburger Button -->
+  <div class="mobile-top-bar">
+    <button class="menu-toggle-btn" id="menuToggle">☰</button>
+    <span style="font-weight: 700; font-size: 16px;">AeroCube</span>
+  </div>
+
+  <!-- Backdrop Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- Left Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-top-group">
+      <div class="sidebar-logo">
+        <img src="logo/Aerocube-Logo.svg" alt="AeroCube Logo" onerror="this.style.display='none'">
+      </div>
+      
+      <div class="nav-links">
+        <a href="index.html" class="nav-item"><i data-lucide="layout-grid"></i><span>Dashboard</span></a>
+        <a href="graph.html" class="nav-item"><i data-lucide="line-chart"></i><span>Analytics</span></a>
+        <a href="History.html" class="nav-item"><i data-lucide="clock"></i><span>History</span></a>
+        <a href="aeroplug.html" class="nav-item"><i data-lucide="plug"></i><span>AeroPlug</span></a>
+        <a href="settings.html" class="nav-item"><i data-lucide="settings"></i><span>Settings</span></a>
+      </div>
+    </div>
+    
+    <div class="sidebar-footer">
+      <button class="nav-item install-app-item" id="install-app-btn" type="button" hidden>
+        <i data-lucide="download"></i><span>Install App</span>
+      </button>
+      <a href="about.html" class="nav-item active">
+        <i data-lucide="help-circle"></i>
+        <span>About</span>
+      </a>
+      <a href="#" id="btn-logout" class="nav-item logout-link"><i data-lucide="log-out"></i><span>Logout</span></a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    
+    <!-- Header -->
+    <header class="header">
+      <div class="header-title">
+        <h1>About AeroCube</h1>
+      </div>
+      <div class="header-badges">
+        <div class="badge badge-status" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: #10b981;">
+          <span>SYSTEM v1.0.0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- About Content Section -->
+    <section class="about-grid">
+      
+      <!-- Project Overview Card -->
+      <div class="card about-card" style="grid-column: 1 / -1;">
+        <div class="card-header">
+          <div class="card-icon"><i data-lucide="info"></i></div>
+          PROJECT OVERVIEW
+        </div>
+        <div class="about-body">
+          <h2>Smart Indoor Air Quality Monitor & Automator</h2>
+          <p>
+            AeroCube is an advanced IoT environmental monitoring system designed to track indoor air quality metrics in real-time. 
+            By utilizing industrial-grade sensors, it measures CO2 levels, Volatile Organic Compounds (VOCs), and Particulate Matter (PM1.0 to PM10.0). 
+            Coupled with automated smart outlets (AeroPlugs), the system helps users mitigates poor air quality by integrated automated outlets and providing insights and actionable recommendations.
+          </p>
+        </div>
+      </div>
+
+      <!-- Sensor Suite Card -->
+      <div class="card about-card sensor-suite-card" style="grid-column: 1 / -1;">
+        <div class="card-header">
+          <div class="card-icon"><i data-lucide="microscope"></i></div>
+          SENSOR SUITE
+        </div>
+        <div class="sensor-suite">
+          <div class="sensor-card">
+            <img src="images/scd41.webp" alt="Sensirion SCD41" class="sensor-image">
+            <h3 class="sensor-title">Sensirion SCD41</h3>
+            <div class="sensor-section">
+              <h4>Primary Function</h4>
+              <p>Monitors absolute CO2 concentrations in parts-per-million (ppm), alongside ambient temperature and humidity.</p>
+            </div>
+            <div class="sensor-section">
+              <h4>Technology</h4>
+              <p>Photoacoustic NDIR (Non-Dispersive Infrared) Sensing.</p>
+            </div>
+            <div class="sensor-section">
+              <h4>How it Works</h4>
+              <p>An infrared emitter pulses light through the air. CO2 molecules absorb specific wavelengths, causing them to vibrate and create tiny pressure changes. A highly sensitive MEMS microphone detects these pressure changes as sound waves to determine CO2 density.</p>
+            </div>
+          </div>
+
+          <div class="sensor-card">
+            <img src="images/sps30.webp" alt="Sensirion SPS30" class="sensor-image">
+            <h3 class="sensor-title">Sensirion SPS30</h3>
+            <div class="sensor-section">
+              <h4>Primary Function</h4>
+              <p>Detects and measures airborne particulate matter mass concentration across four distinct size bins: PM1.0, PM2.5, PM4.0, and PM10.0.</p>
+            </div>
+            <div class="sensor-section">
+              <h4>Technology</h4>
+              <p>Laser Scattering (Optical Particle Counting).</p>
+            </div>
+            <div class="sensor-section">
+              <h4>How it Works</h4>
+              <p>An internal fan draws ambient air through a chamber. A focused laser beam crosses the air stream, and as particles intersect the laser, they scatter light. A photodiode captures this scattered light to calculate particle mass. It also features an automated fan-cleaning mode to prevent long-term dust accumulation.</p>
+            </div>
+          </div>
+
+          <div class="sensor-card">
+            <img src="images/sgp40.webp" alt="Sensirion SGP40" class="sensor-image">
+            <h3 class="sensor-title">Sensirion SGP40</h3>
+            <div class="sensor-section">
+              <h4>Primary Function</h4>
+              <p>Detects complex indoor air pollutants from sources like cleaning agents, paints, aerosols, and cooking fumes, translating them into a standardized 0–500 VOC Index.</p>
+            </div>
+            <div class="sensor-section">
+              <h4>Technology</h4>
+              <p>Metal-Oxide (MOx) Semiconductor Sensing.</p>
+            </div>
+            <div class="sensor-section">
+              <h4>How it Works</h4>
+              <p>Contains a microscopic sensing element coated with a specialized metal-oxide material heated to a high temperature. Chemical vapors react with oxygen ions on this surface, altering the sensor's electrical resistance. This raw data is processed through an algorithm to calculate dynamic spikes in indoor chemical pollution.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hardware Specs Card -->
+      <div class="card about-card">
+        <div class="card-header">
+          <div class="card-icon"><i data-lucide="cpu"></i></div>
+          HARDWARE ARCHITECTURE
+        </div>
+        <div class="about-body">
+          <ul class="spec-list">
+            <li><strong>Microcontroller:</strong> ESP32 (2.4 GHz Wi-Fi & )</li>
+            <li><strong>CO2 / Temp / Humidity:</strong> Sensirion SCD41 (Photoacoustic NDIR)</li>
+            <li><strong>VOC Index:</strong> Sensirion SGP40</li>
+            <li><strong>Particulate Matter:</strong> Sensirion SPS30 (Laser Scattering)</li>
+            <li><strong>Display:</strong> 2.4" TFT LCD (ST7789)</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Software Specs Card -->
+      <div class="card about-card">
+        <div class="card-header">
+          <div class="card-icon"><i data-lucide="code-2"></i></div>
+          SOFTWARE STACK
+        </div>
+        <div class="about-body">
+          <ul class="spec-list">
+            <li><strong>Netlify:</strong> Netlify for Deployment</li>
+            <li><strong>Backend / Database:</strong> Firebase Realtime Database</li>
+            <li><strong>Firmware Environment:</strong> Arduino IDE / C++</li>
+            <li><strong>Frontend Dashboard:</strong> HTML5, CSS3, Vanilla JavaScript</li>
+            <li><strong>Iconography:</strong> Lucide Icons</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+    
+      <!-- Development Team Section -->
+      <div class="card team-section" style="grid-column: 1 / -1;">
+        <div class="card-header">
+          <div class="card-icon"><i data-lucide="users"></i></div>
+          AEROCUBE DEVELOPMENT TEAM
+        </div>
+        <div class="team-grid">
+
+          <!-- Mark Daniel Quinot -->
+          <div class="team-card">
+            <div class="member-avatar">
+              <img src="images/quinot.jpg" alt="Mark Daniel Quinot" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Mark+Daniel+Quinot&background=1e293b&color=34d399&size=128';">
+            </div>
+            <h3 class="member-name">Mark Daniel Quinot</h3>
+            <span class="member-role role-backend">Embedded Software Developer</span>
+          </div>
+
+          <!-- Lanz Joshua Dequillo -->
+          <div class="team-card">
+            <div class="member-avatar">
+              <img src="images/deq.jpg" alt="Lanz Joshua Dequillo" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Lanz+Joshua+Dequillo&background=1e293b&color=34d399&size=128'; ">
+            </div>
+            <h3 class="member-name">Lanz Joshua Dequillo</h3>
+            <span class="member-role role-frontend">Frontend Developer</span>
+          </div>
+
+          <!-- Alyza Cañete -->
+          <div class="team-card">
+            <div class="member-avatar">
+              <img src="images/lyza.png" alt="Alyza Cañete" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Alyza+Canete&background=1e293b&color=c084fc&size=128';">
+            </div>
+            <h3 class="member-name">Alyza Cañete</h3>
+            <span class="member-role role-doc">Documentation</span>
+          </div>
+
+          <!-- Trisha Gerona -->
+          <div class="team-card">
+            <div class="member-avatar">
+              <img src="images/image.png" alt="Trisha Gerona" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=Trisha+Gerona&background=1e293b&color=c084fc&size=128';">
+            </div>
+            <h3 class="member-name">Trisha Gerona</h3>
+            <span class="member-role role-doc">Documentation</span>
+          </div>
+
+          <!-- John Euvir Polido -->
+          <div class="team-card">
+            <div class="member-avatar">
+              <img src="images/Euvir.jpg" alt="John Euvir Polido" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=John+Euvir+Polido&background=1e293b&color=c084fc&size=128';">
+            </div>
+            <h3 class="member-name">John Euvir Polido</h3>
+            <span class="member-role role-doc">Documentation/ Team Leader</span>
+          </div>
+
+        </div>
+      </div>
+
+  </main>
+
+  <script src="about.js"></script>
+  <script src="pwa.js"></script>
+</body>
+</html>

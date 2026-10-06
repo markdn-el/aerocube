@@ -1,463 +1,295 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AeroCube Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-
-    <style>
-        /* Tablet adjustments (Screens below 1024px width) */
-        @media (max-width: 1024px) {
-            body {
-                padding: 24px !important;
-            }
-            .main-grid {
-                grid-template-columns: 1fr !important; /* Stack columns vertically */
-                gap: 24px !important;
-            }
-            .recs-grid {
-                grid-template-columns: 1fr !important;
-            }
-        }
-
-        /* Mobile Phone adjustments (Screens below 650px width) */
-        @media (max-width: 650px) {
-            body {
-                padding: 16px !important;
-            }
-            header {
-                flex-direction: column !important;
-                align-items: flex-start !important;
-                gap: 8px !important;
-            }
-            header h1 {
-                font-size: 26px !important;
-            }
-            .climate-grid {
-                grid-template-columns: 1fr !important; /* Force climate cards into single row stack */
-                gap: 12px !important;
-            }
-            .outlet-input-line {
-                width: 50% !important; /* Adjust custom text decoration underlining width */
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AeroCube | Dashboard</title>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <meta property="og:image" content="https://bolt.new/static/og_default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
 </head>
-<body style="margin: 0; padding: 40px; background-color: #0A0A0A; font-family: 'Inter', sans-serif; color: #FFFFFF; display: flex; justify-content: center; min-height: 100vh; box-sizing: border-box; transition: padding 0.2s ease;">
+<body>
 
-    <div style="width: 100%; max-width: 1360px; display: flex; flex-direction: column; gap: 32px;">
-        
-        <header style="display: flex; justify-content: space-between; align-items: center; width: 100%; transition: all 0.2s ease;">
-            <h1 style="margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -0.5px;">AeroCube Dashboard</h1>
-            <span id="dashboard-clock" style="color: #DDE3EB; opacity: 0.6; font-size: 16px; font-weight: 400;">Loading System Time...</span>
-        </header>
+  <!-- Mobile Top Header Bar with Hamburger Button -->
+  <div class="mobile-top-bar">
+    <button class="menu-toggle-btn" id="menuToggle"><i data-lucide="menu"></i></button>
+    <span class="mobile-brand">AeroCube</span>
+  </div>
 
-        <main class="main-grid" style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 32px; width: 100%; transition: grid-template-columns 0.2s ease;">
-            
-            <div style="display: flex; flex-direction: column; gap: 32px;">
-                <section style="background-color: #1E1E1E; border-radius: 16px; padding: 24px; display: flex; flex-direction: column; gap: 20px;">
-                    <h2 style="margin: 0; font-size: 18px; font-weight: 600; color: #FFFFFF;">Indoor Air Climate</h2>
-                    
-                    <div class="climate-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; transition: grid-template-columns 0.2s ease;">
-                        
-                        <div id="card-co2" style="background-color: #242424; border: 2px solid #3DD68C; border-radius: 16px; padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; height: 160px; box-sizing: border-box; transition: all 0.3s ease;">
-                            <span style="color: #3DD68C; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;" id="lbl-co2">CO2</span>
-                            <span id="val-co2" style="font-size: 40px; font-weight: 700; margin: auto 0;">--</span>
-                            <span style="color: #DDE3EB; opacity: 0.6; font-size: 12px; font-weight: 500;">PPM</span>
-                        </div>
-                        
-                        <div id="card-voc" style="background-color: #242424; border: 1px solid #3DD68C; border-radius: 16px; padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; height: 160px; box-sizing: border-box; transition: all 0.3s ease;">
-                            <span style="color: #DDE3EB; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;" id="lbl-voc">VOC Index</span>
-                            <span id="val-voc" style="font-size: 40px; font-weight: 700; margin: auto 0;">--</span>
-                            <span style="color: #DDE3EB; opacity: 0; font-size: 12px;">-</span>
-                        </div>
-                        
-                        <div style="display: flex; flex-direction: column; gap: 12px; height: 160px; box-sizing: border-box;">
-                            <div style="background-color: #242424; border-radius: 12px; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; flex: 1;">
-                                <span style="color: #DDE3EB; font-size: 13px; font-weight: 600;">Temperature</span>
-                                <span id="val-temp" style="color: #FFFFFF; font-size: 16px; font-weight: 700;">--°C</span>
-                            </div>
-                            <div style="background-color: #242424; border-radius: 12px; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; flex: 1;">
-                                <span style="color: #DDE3EB; font-size: 13px; font-weight: 600;">Humidity</span>
-                                <span id="val-humid" style="color: #FFFFFF; font-size: 16px; font-weight: 700;">--%</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+  <!-- Backdrop Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-                <div class="recs-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
-                    <section id="panel-recommendations" style="background-color: #1E1E1E; border: 2px solid #3DD68C; border-radius: 16px; padding: 24px; min-height: 160px; box-sizing: border-box; transition: all 0.3s ease;">
-                        <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #FFFFFF;">Recommendations:</h3>
-                        <ul id="list-recommendations" style="margin: 0; padding-left: 20px; color: #DDE3EB; font-size: 16px; line-height: 1.8;">
-                            <li>System Initializing...</li>
-                        </ul>
-                    </section>
-
-                    <div id="card-status" style="background-color: #242424; border: 1px solid #3DD68C; border-radius: 16px; padding: 20px; text-align: center; display: flex; flex-direction: column; justify-content: space-between; min-height: 160px; box-sizing: border-box; transition: all 0.3s ease;">
-                        <span style="color: #DDE3EB; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">STATUS</span>
-                        <span id="val-status-emoji" style="font-size: 40px; font-weight: 700; margin: auto 0;">😊</span>
-                        <span id="val-status-text" style="color: #3DD68C; font-size: 12px; font-weight: 600;">Excellent</span>
-                    </div>
-                </div>
-
-                <section style="background-color: #1E1E1E; border-radius: 16px; padding: 24px; box-sizing: border-box;">
-                    <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600; color: #FFFFFF;">Health Insights:</h3>
-                    <p id="txt-health-insights" style="margin: 0; color: #DDE3EB; opacity: 0.8; font-size: 15px; line-height: 1.6; font-style: italic;">
-                        "Synchronizing environmental models with Google Firebase Realtime Database clusters..."
-                    </p>
-                </section>
-            </div>
-
-            <div style="background-color: #1E1E1E; border-radius: 16px; padding: 28px; display: flex; flex-direction: column; gap: 28px;">
-                <h2 style="margin: 0; font-size: 18px; font-weight: 600; color: #FFFFFF; text-align: center;">Quick Actions</h2>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                    <button id="btn-buzzer" style="background-color: #242424; border: none; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; cursor: pointer; transition: all 0.2s ease;">
-                        <span id="txt-buzzer-state" style="color: #DDE3EB; opacity: 0.6; font-size: 14px; font-weight: 500;">Mute</span>
-                        <div id="icon-buzzer">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
-                        </div>
-                        <span style="color: #FFFFFF; font-size: 16px; font-weight: 500;">Buzzer</span>
-                    </button>
-
-                    <button id="btn-led" style="background-color: #DDE3EB; border: none; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; cursor: pointer; transition: all 0.2s ease;">
-                        <span id="txt-led-state" style="color: #1E1E1E; opacity: 0.7; font-size: 14px; font-weight: 600;">Active</span>
-                        <div id="icon-led">
-                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#1E1E1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .6 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line></svg>
-                        </div>
-                        <span id="txt-led-label" style="color: #1E1E1E; font-size: 16px; font-weight: 700;">LED</span>
-                    </button>
-                </div>
-
-                <div style="display: flex; flex-direction: column; gap: 12px; align-items: center; margin-top: 8px;">
-                    <span style="color: #DDE3EB; opacity: 0.8; font-size: 14px; font-weight: 500;">Control Mode</span>
-                    <div style="background-color: #242424; width: 100%; border-radius: 12px; padding: 6px; display: flex; box-sizing: border-box;">
-                        <div id="mode-auto" style="flex: 1; text-align: center; padding: 12px; color: #DDE3EB; opacity: 0.4; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s ease;">AUTOMATIC</div>
-                        <div id="mode-manual" style="flex: 1; text-align: center; padding: 12px; background-color: #DDE3EB; color: #1E1E1E; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s ease;">MANUAL</div>
-                    </div>
-                </div>
-
-                <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 12px;">
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <span id="indicator-auto-1" style="color: #3DD68C; opacity: 0.8; font-size: 11px; align-self: flex-end; font-weight: 600; letter-spacing: 0.3px;">Auto: CO2</span>
-                        <div style="background-color: #242424; border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
-                            <span class="outlet-input-line" style="font-size: 18px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 2px; width: 65%;">Outlet #1</span>
-                            <div id="toggle-outlet-1" style="width: 50px; height: 28px; background-color: #DDE3EB; border-radius: 14px; position: relative; cursor: pointer; transition: all 0.2s ease;">
-                                <div style="width: 22px; height: 22px; background-color: #1E1E1E; border-radius: 50%; position: absolute; right: 3px; top: 3px; transition: all 0.2s ease;"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <span id="indicator-auto-2" style="color: #3DD68C; opacity: 0.8; font-size: 11px; align-self: flex-end; font-weight: 600; letter-spacing: 0.3px;">Auto: VOC</span>
-                        <div style="background-color: #242424; border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
-                            <span class="outlet-input-line" style="font-size: 18px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 2px; width: 65%;">Outlet #2</span>
-                            <div id="toggle-outlet-2" style="width: 50px; height: 28px; background-color: #DDE3EB; border-radius: 14px; position: relative; cursor: pointer; transition: all 0.2s ease;">
-                                <div style="width: 22px; height: 22px; background-color: #1E1E1E; border-radius: 50%; position: absolute; right: 3px; top: 3px; transition: all 0.2s ease;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+  <!-- Left Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top-group">
+      <div class="sidebar-logo">
+        <img src="logo/Aerocube-Logo.svg" alt="AeroCube Logo" onerror="this.style.display='none'">
+      </div>
+      <div class="nav-links">
+        <a href="index.html" class="nav-item active">
+          <i data-lucide="layout-grid"></i><span>Dashboard</span>
+        </a>
+        <a href="graph.html" class="nav-item">
+          <i data-lucide="line-chart"></i><span>Analytics</span>
+        </a>
+        <a href="History.html" class="nav-item">
+          <i data-lucide="clock"></i><span>History</span>
+        </a>
+        <a href="aeroplug.html" class="nav-item">
+          <i data-lucide="plug"></i><span>AeroPlug</span>
+        </a>
+        <a href="settings.html" class="nav-item">
+          <i data-lucide="settings"></i><span>Settings</span>
+        </a>
+      </div>
     </div>
+    <div class="sidebar-footer">
+      <button class="nav-item install-app-item" id="install-app-btn" type="button" hidden>
+        <i data-lucide="download"></i><span>Install App</span>
+      </button>
+      <a href="about.html" class="nav-item">
+        <i data-lucide="help-circle"></i><span>About</span>
+      </a>
+      <a href="#" id="btn-logout" class="nav-item logout-link">
+        <i data-lucide="log-out"></i><span>Logout</span>
+      </a>
+    </div>
+  </aside>
 
-    <script>
-        // =================================================================
-        // 🛠️ FIREBASE CONFIGURATION RECEPTACLE
-        // =================================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyBQP8psXqOg-yb1eQDXzONoEXV1CnIUAp0",
-            authDomain: "aerocube-db.firebaseapp.com",
-            databaseURL: "https://aerocube-db-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "aerocube-db",
-            storageBucket: "aerocube-db.firebasestorage.app",
-            messagingSenderId: "531621525535",
-            appId: "1:531621525535:web:4fdfba99e7827790eafd2a",
-            measurementId: "G-0NSQ3R1HE7"
-        };
+  <!-- Main Content -->
+  <main class="main-content">
 
-        // Initialize Firebase Cluster Connections
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+    <!-- Header -->
+    <header class="header">
+      <div class="header-title">
+        <h1>AeroCube Dashboard</h1>
+        <p class="header-subtitle">Real-time indoor air quality monitoring</p>
+      </div>
+      <div class="header-badges">
+        <div class="badge badge-live">
+          <div class="badge-dot"></div>LIVE SYNC
+        </div>
+        <div class="badge badge-device" id="device-connection-badge">
+          <span id="device-status-text">CONNECTING...</span>
+        </div>
+        <button class="notification-button" id="btn-notifications" type="button">
+          <i data-lucide="bell"></i><span>Enable Notifications</span>
+        </button>
+      </div>
+    </header>
 
-        // Local State Architecture Layout
-        let systemState = {
-            isManual: true,
-            buzzerMuted: true,
-            ledActive: true,
-            outlet1Active: false,
-            outlet2Active: false
-        };
+    <!-- Device Status Bar -->
+    <section class="device-status-bar" id="device-status-bar">
+      <div class="device-status-left">
+        <div class="device-indicator" id="device-indicator"></div>
+        <div>
+          <div class="device-name" id="device-name">AeroCube 01</div>
+          <div class="device-last-seen" id="device-last-seen">Last data received: --</div>
+        </div>
+      </div>
+      <div class="device-status-right">
+        <span class="device-uptime" id="device-uptime"></span>
+        <div class="top-buzzer-control">
+          <div>
+            <div class="top-buzzer-label">AeroCube Buzzer</div>
+            <div class="top-buzzer-state" id="text-buzzer">--</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="switch-buzzer" disabled>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </section>
 
-        // DOM Element Mapping Nodes
-        const modeAuto = document.getElementById('mode-auto');
-        const modeManual = document.getElementById('mode-manual');
-        const btnBuzzer = document.getElementById('btn-buzzer');
-        const btnLed = document.getElementById('btn-led');
-        const toggleOutlet1 = document.getElementById('toggle-outlet-1');
-        const toggleOutlet2 = document.getElementById('toggle-outlet-2');
+    <!-- Overall Air Quality Status Banner -->
+    <section class="aq-status-banner" id="aq-banner">
+      <div class="aq-banner-left">
+        <div class="aq-banner-label">AIR QUALITY</div>
+        <div class="aq-banner-status" id="aq-banner-status">--</div>
+        <div class="aq-banner-desc" id="aq-banner-desc">Awaiting data from AeroCube device...</div>
+      </div>
+      <div class="aq-banner-icon" id="aq-banner-icon">
+        <i data-lucide="activity"></i>
+      </div>
+    </section>
 
-        const iconBuzzerMute = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`;
-        const iconBuzzerActive = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`;
-        const iconLedSvg = `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .6 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line></svg>`;
+    <!-- Sensor Cards Grid -->
+    <section class="metrics-grid">
+      <!-- CO2 -->
+      <div class="card" id="card-co2">
+        <div class="card-header">
+          <div class="card-icon"><i data-lucide="wind"></i></div>
+          CO<sub>2</sub>
+        </div>
+        <div class="card-body">
+          <div class="card-value" id="val-co2">-- <span>ppm</span></div>
+          <div class="card-status" id="status-co2">Awaiting data</div>
+        </div>
+      </div>
 
-        // Clock Pipeline Task
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('dashboard-clock').innerText = now.toLocaleString('en-US', { 
-                month: 'long', day: 'numeric', year: 'numeric', 
-                hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true 
-            });
-        }, 1000);
+      <!-- PM AQI -->
+      <div class="card" id="card-pmaqi">
+        <div class="card-header">
+          <div class="card-icon"><i data-lucide="gauge"></i></div>
+          PM AQI
+        </div>
+        <div class="card-body">
+          <div class="card-value" id="val-pmaqi">-- <span>AQI</span></div>
+          <div class="card-status" id="status-pmaqi">Awaiting data</div>
+        </div>
+      </div>
 
-        // ==========================================
-        // 📥 CLOUD SYNC LISTENERS (FIREBASE -> UI)
-        // ==========================================
-        
-        // 1. Listen to Telemetry Stream (CO2, VOC Index, Temp, Humid)
-        database.ref('telemetry').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (!data) return;
+      <!-- VOC Index -->
+      <div class="card" id="card-voc">
+        <div class="card-header">
+          <div class="card-icon"><i data-lucide="flask-conical"></i></div>
+          VOC INDEX
+        </div>
+        <div class="card-body">
+          <div class="card-value" id="val-voc">--</div>
+          <div class="card-status" id="status-voc">Awaiting data</div>
+        </div>
+      </div>
 
-            const co2 = data.co2 || 400;
-            const voc = data.vocIndex || 100;
-            const temp = data.temperature !== undefined ? data.temperature : '--';
-            const humid = data.humidity !== undefined ? data.humidity : '--';
+      <!-- Temperature and Humidity -->
+      <div class="card pm-detail-card" id="card-environment-detail">
+        <div class="card-header">
+          <div class="card-icon"><i data-lucide="thermometer"></i></div>
+          ENVIRONMENT
+        </div>
+        <div class="pm-mini-grid">
+          <div class="pm-mini-box">
+            <div class="pm-mini-label">TEMPERATURE</div>
+            <div class="pm-mini-val" id="val-temp">-- <span>°C</span></div>
+          </div>
+          <div class="pm-mini-box">
+            <div class="pm-mini-label">HUMIDITY</div>
+            <div class="pm-mini-val" id="val-humidity">-- <span>%</span></div>
+          </div>
+        </div>
+      </div>
 
-            document.getElementById('val-co2').innerText = co2;
-            document.getElementById('val-voc').innerText = voc;
-            document.getElementById('val-temp').innerText = temp !== '--' ? temp + '°C' : '--°C';
-            document.getElementById('val-humid').innerText = humid !== '--' ? humid + '%' : '--%';
+      <!-- Additional PM readings -->
+      <div class="card pm-detail-card" id="card-pm-detail">
+        <div class="card-header">
+          <div class="card-icon"><i data-lucide="grid"></i></div>
+          PARTICULATE MATTER
+        </div>
+        <div class="pm-mini-grid">
+          <div class="pm-mini-box">
+            <div class="pm-mini-label">PM 2.5</div>
+            <div class="pm-mini-val" id="val-pm25">-- <span>µg/m³</span></div>
+          </div>
+          <div class="pm-mini-box">
+            <div class="pm-mini-label">PM 10</div>
+            <div class="pm-mini-val" id="val-pm10">-- <span>µg/m³</span></div>
+          </div>
+          <div class="pm-mini-box">
+            <div class="pm-mini-label">PM 1.0</div>
+            <div class="pm-mini-val" id="val-pm1">-- <span>µg/m³</span></div>
+          </div>
+          <div class="pm-mini-box">
+            <div class="pm-mini-label">PM 4.0</div>
+            <div class="pm-mini-val" id="val-pm4">-- <span>µg/m³</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            evaluateAtmosphericSafety(co2, voc);
-        });
+    <!-- Recommendations Section -->
+    <section class="recommendations-section">
+      <div class="section-header">
+        <h2><i data-lucide="lightbulb"></i> Air Quality Recommendations</h2>
+      </div>
+      <div class="recommendations-content" id="recommendations-content">
+        <p class="rec-waiting">Waiting for telemetry data to generate recommendations...</p>
+      </div>
+    </section>
 
-        // 2. Listen to Control Overrides Stream
-        database.ref('controls').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (!data) return;
+        <!-- Indoor Air Quality Guide -->
+    <section class="guide-section">
+      <div class="guide-header">
+        <h2><i data-lucide="book-open-check"></i> Indoor Air Quality Guide</h2>
+        <p class="guide-subtitle">Simple ways to keep your indoor air healthy</p>
+      </div>
 
-            // Invert "isAutoMode" flag from server to match local "isManual" UI states
-            systemState.isManual = !(data.isAutoMode);
-            systemState.buzzerMuted = data.isBuzzerSilenced;
-            systemState.ledActive = data.isRGBEnabled;
-            systemState.outlet1Active = data.manualRelay1;
-            systemState.outlet2Active = data.manualRelay2;
+      <div class="guide-body">
+        <!-- Tips -->
+        <div class="guide-tips">
+          <div class="guide-tip">
+            <div class="guide-tip-icon"><i data-lucide="wind"></i></div>
+            <div>
+              <strong>Ventilate regularly</strong>
+              <p>Open windows or use mechanical ventilation when CO<sub>2</sub> rises.</p>
+            </div>
+          </div>
 
-            // Update entire UI layout with new states
-            executeControlUIUpdates();
-        });
+          <div class="guide-tip">
+            <div class="guide-tip-icon"><i data-lucide="spray-can"></i></div>
+            <div>
+              <strong>Reduce VOC sources</strong>
+              <p>Limit smoke, strong fragrances, aerosols, and harsh cleaning products.</p>
+            </div>
+          </div>
 
-        // ==========================================
-        // 🧮 MATHEMATICAL METRIC EVALUATION ENGINE
-        // ==========================================
-        function evaluateAtmosphericSafety(co2, voc) {
-            const cardCo2 = document.getElementById('card-co2');
-            const cardVoc = document.getElementById('card-voc');
-            const cardStatus = document.getElementById('card-status');
-            const lblCo2 = document.getElementById('lbl-co2');
-            const lblVoc = document.getElementById('lbl-voc');
-            const txtStatus = document.getElementById('val-status-text');
-            const emojiStatus = document.getElementById('val-status-emoji');
-            const panelRecs = document.getElementById('panel-recommendations');
-            const listRecs = document.getElementById('list-recommendations');
-            const txtInsights = document.getElementById('txt-health-insights');
+          <div class="guide-tip">
+            <div class="guide-tip-icon"><i data-lucide="air-vent"></i></div>
+            <div>
+              <strong>Control particles</strong>
+              <p>Reduce dust and smoke, and use air filtration when PM AQI is elevated.</p>
+            </div>
+          </div>
+        </div>
 
-            let alertLevel = 0; // 0 = Safe, 1 = Warning, 2 = Critical
+        <!-- Reference table -->
+        <div class="guide-reference">
+          <h3>Reading the measurements</h3>
+          <div class="guide-table-wrap">
+            <table class="guide-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Good</th>
+                  <th>Elevated</th>
+                  <th>Poor</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>CO<sub>2</sub></td>
+                  <td class="g-good">&lt; 1000 ppm</td>
+                  <td class="g-elevated">1000–1499 ppm</td>
+                  <td class="g-poor">1500+ ppm</td>
+                </tr>
+                <tr>
+                  <td>VOC</td>
+                  <td class="g-good">&lt; 150</td>
+                  <td class="g-elevated">150–249</td>
+                  <td class="g-poor">250+</td>
+                </tr>
+                <tr>
+                  <td>PM AQI</td>
+                  <td class="g-good">0–100</td>
+                  <td class="g-elevated">101–150</td>
+                  <td class="g-poor">151+</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+    
 
-            if (co2 >= 2500 || voc >= 250)      alertLevel = 2;
-            else if (co2 >= 1000 || voc >= 150) alertLevel = 1;
+  </main>
 
-            // Update Individual Card Accents dynamically based on localized thresholds
-            cardCo2.style.borderColor = (co2 >= 2500) ? '#E63946' : (co2 >= 1000 ? '#FFB703' : '#3DD68C');
-            lblCo2.style.color = (co2 >= 2500) ? '#E63946' : (co2 >= 1000 ? '#FFB703' : '#3DD68C');
-            
-            cardVoc.style.borderColor = (voc >= 250) ? '#E63946' : (voc >= 150 ? '#FFB703' : '#3DD68C');
-            lblVoc.style.color = (voc >= 250) ? '#E63946' : (voc >= 150 ? '#FFB703' : '#3DD68C');
-
-            if (alertLevel === 2) {
-                cardStatus.style.borderColor = '#E63946';
-                txtStatus.innerText = "Critical";
-                txtStatus.style.color = "#E63946";
-                emojiStatus.innerText = "😷";
-                panelRecs.style.borderColor = "#E63946";
-
-                listRecs.innerHTML = `
-                    <li style="color: #E63946; font-weight: 600;">Hazard: Toxic air volume parameters detected!</li>
-                    <li>Evacuate unventilated spaces immediately.</li>
-                    <li>Mains automation loops activated to drop toxicity indexes.</li>
-                `;
-                txtInsights.innerText = `"System flag stands at Critical. Carbon dioxide or chemical synthesis levels have broken absolute limits. Evacuation protocols or full-forced mechanical exhausting routes are currently operating on the node line."`;
-            } 
-            else if (alertLevel === 1) {
-                cardStatus.style.borderColor = '#FFB703';
-                txtStatus.innerText = "Warning";
-                txtStatus.style.color = "#FFB703";
-                emojiStatus.innerText = "😐";
-                panelRecs.style.borderColor = "#FFB703";
-
-                listRecs.innerHTML = `
-                    <li style="color: #FFB703; font-weight: 600;">Warning: Stale environment conditions developing.</li>
-                    <li>Open nearest windows to introduce atmospheric circulation.</li>
-                    <li>Relay modules are currently driven by active sensors.</li>
-                `;
-                txtInsights.innerText = `"System flag stands at Warning. Ambient carbon accumulation is increasing. The edge-remediation matrix has activated targeted fans to normalize room climate density profiles."`;
-            } 
-            else {
-                cardStatus.style.borderColor = '#3DD68C';
-                txtStatus.innerText = "Excellent";
-                txtStatus.style.color = "#3DD68C";
-                emojiStatus.innerText = "😊";
-                panelRecs.style.borderColor = "#52B788";
-
-                listRecs.innerHTML = `
-                    <li>No recommendations</li>
-                    <li>The air is clean</li>
-                `;
-                txtInsights.innerText = `"Air parameters are currently optimal. No autonomous remediation is necessary. The hardware module remains in green standby mode to preserve appliance energy. Keep practicing your regular ventilation habits to maintain this baseline."`;
-            }
-        }
-
-        // ==========================================
-        // 🔄 VISUAL INTERACTIVE RENDER ENGINE
-        // ==========================================
-        function executeControlUIUpdates() {
-            if (systemState.isManual) {
-                modeManual.style.backgroundColor = '#DDE3EB';
-                modeManual.style.color = '#1E1E1E';
-                modeManual.style.fontWeight = '700';
-                modeManual.style.opacity = '1';
-
-                modeAuto.style.backgroundColor = 'transparent';
-                modeAuto.style.color = '#DDE3EB';
-                modeAuto.style.fontWeight = '600';
-                modeAuto.style.opacity = '0.4';
-                
-                enableOutletInteractions(true);
-            } else {
-                modeAuto.style.backgroundColor = '#DDE3EB';
-                modeAuto.style.color = '#1E1E1E';
-                modeAuto.style.fontWeight = '700';
-                modeAuto.style.opacity = '1';
-
-                modeManual.style.backgroundColor = 'transparent';
-                modeManual.style.color = '#DDE3EB';
-                modeManual.style.fontWeight = '600';
-                modeManual.style.opacity = '0.4';
-                
-                enableOutletInteractions(false);
-            }
-
-            const txtBuzzer = document.getElementById('txt-buzzer-state');
-            const divBuzzerIcon = document.getElementById('icon-buzzer');
-            if (systemState.buzzerMuted) {
-                btnBuzzer.style.backgroundColor = '#242424';
-                btnBuzzer.style.color = '#FFFFFF';
-                txtBuzzer.innerText = 'Mute';
-                txtBuzzer.style.color = '#DDE3EB';
-                txtBuzzer.style.opacity = '0.6';
-                divBuzzerIcon.style.color = '#FFFFFF';
-                divBuzzerIcon.innerHTML = iconBuzzerMute;
-            } else {
-                btnBuzzer.style.backgroundColor = '#E63946'; 
-                btnBuzzer.style.color = '#FFFFFF';
-                txtBuzzer.innerText = 'Sounding';
-                txtBuzzer.style.color = '#FFFFFF';
-                txtBuzzer.style.opacity = '1';
-                divBuzzerIcon.style.color = '#FFFFFF';
-                divBuzzerIcon.innerHTML = iconBuzzerActive;
-            }
-
-            const txtLed = document.getElementById('txt-led-state');
-            const lblLed = document.getElementById('txt-led-label');
-            const divLedIcon = document.getElementById('icon-led');
-            if (systemState.ledActive) {
-                btnLed.style.backgroundColor = '#DDE3EB';
-                txtLed.innerText = 'Active';
-                txtLed.style.color = '#1E1E1E';
-                txtLed.style.opacity = '0.7';
-                lblLed.style.color = '#1E1E1E';
-                divLedIcon.style.color = '#1E1E1E';
-                divLedIcon.innerHTML = iconLedSvg;
-            } else {
-                btnLed.style.backgroundColor = '#242424';
-                txtLed.innerText = 'Off';
-                txtLed.style.color = '#DDE3EB';
-                txtLed.style.opacity = '0.4';
-                lblLed.style.color = '#FFFFFF';
-                divLedIcon.style.color = '#DDE3EB';
-                divLedIcon.style.opacity = '0.4';
-                divLedIcon.innerHTML = iconLedSvg;
-            }
-
-            updateToggleSwitchUI(toggleOutlet1, systemState.outlet1Active);
-            updateToggleSwitchUI(toggleOutlet2, systemState.outlet2Active);
-        }
-
-        function enableOutletInteractions(enabled) {
-            const opacityValue = enabled ? '1' : '0.4';
-            const cursorValue = enabled ? 'pointer' : 'not-allowed';
-            
-            [toggleOutlet1, toggleOutlet2].forEach(el => {
-                el.style.opacity = opacityValue;
-                el.style.cursor = cursorValue;
-            });
-
-            document.getElementById('indicator-auto-1').style.color = enabled ? '#A0A0A0' : '#3DD68C';
-            document.getElementById('indicator-auto-1').innerText = enabled ? 'Manual Control Override' : 'Auto: CO2';
-            
-            document.getElementById('indicator-auto-2').style.color = enabled ? '#A0A0A0' : '#3DD68C';
-            document.getElementById('indicator-auto-2').innerText = enabled ? 'Manual Control Override' : 'Auto: VOC';
-        }
-
-        function updateToggleSwitchUI(element, isActive) {
-            const handle = element.children[0];
-            if (isActive) {
-                element.style.backgroundColor = '#3DD68C'; 
-                handle.style.right = '3px';
-                handle.style.left = 'auto';
-            } else {
-                element.style.backgroundColor = '#4A4A4A';
-                handle.style.left = '3px';
-                handle.style.right = 'auto';
-            }
-        }
-
-        // ==========================================
-        // 📤 CLOUD WRITE INTERACTION EVENT HANDLERS
-        // ==========================================
-        modeAuto.addEventListener('click', () => {
-            database.ref('controls/isAutoMode').set(true);
-        });
-
-        modeManual.addEventListener('click', () => {
-            database.ref('controls/isAutoMode').set(false);
-        });
-
-        btnBuzzer.addEventListener('click', () => {
-            database.ref('controls/isBuzzerSilenced').set(!systemState.buzzerMuted);
-        });
-
-        btnLed.addEventListener('click', () => {
-            database.ref('controls/isRGBEnabled').set(!systemState.ledActive);
-        });
-
-        toggleOutlet1.addEventListener('click', () => {
-            if (!systemState.isManual) return; 
-            database.ref('controls/manualRelay1').set(!systemState.outlet1Active);
-        });
-
-        toggleOutlet2.addEventListener('click', () => {
-            if (!systemState.isManual) return; 
-            database.ref('controls/manualRelay2').set(!systemState.outlet2Active);
-        });
-    </script>
+  <script>lucide.createIcons();</script>
+  <script src="pwa.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
